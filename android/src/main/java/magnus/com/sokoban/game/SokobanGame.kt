@@ -9,12 +9,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 
 
 
 class SokobanGame : ApplicationAdapter(), InputProcessor {
-
 
   // we will use 32px/unit in world
   val SCALE = 32f
@@ -28,34 +28,33 @@ class SokobanGame : ApplicationAdapter(), InputProcessor {
   private var shapes: ShapeRenderer? = null
 
   lateinit var batch: SpriteBatch
-  lateinit var img: Texture
   lateinit var player: Player
+  lateinit var world: World
+  var tp = Vector3()
 
   override fun create() {
     batch = SpriteBatch()
-    img = Texture("player.png")
     player = Player()
+    world = World()
 
     camera = OrthographicCamera()
     // pick a viewport that suits your thing, ExtendViewport is a good start
     viewport = ExtendViewport(VP_WIDTH, VP_HEIGHT, camera)
     // ShapeRenderer so we can see our touch point
     shapes = ShapeRenderer()
-    Gdx.input.setInputProcessor(this)
+    Gdx.input.inputProcessor = this
+
   }
 
   override fun render() {
-    Gdx.gl.glClearColor(1F, 0F, 0F, 1F)
-    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
     batch.begin()
-    batch.draw(img, 0F, 0F)
+    world.draw(batch)
     player.draw(batch)
     batch.end()
   }
 
   override fun dispose() {
     batch.dispose()
-    img.dispose()
   }
 
   override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
@@ -87,12 +86,14 @@ class SokobanGame : ApplicationAdapter(), InputProcessor {
   }
 
   override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+    camera?.unproject(tp.set(screenX.toFloat(), screenY.toFloat(), 0F))
+    Log.d("Sokoban game", "Touch x: $screenX y: $screenY")
     var newPosXDiff = 0
     var newPosyDiff = 0
-    val screenXRelativePlayerX = screenX - player.getX().toInt()
-    val screenXRelativePlayerY = screenY - player.getY().toInt()
+    val screenXRelativePlayerX = screenX - player.getX().toInt() //(player.getX().toInt() - (player.shape.width / 2))
+    val screenXRelativePlayerY = screenY - player.getY().toInt() // (player.getY().toInt() - (player.shape.height / 2))
 
-    if (Math.max(Math.abs(screenX), Math.abs(screenY)) == screenX) {
+    if (Math.abs(screenXRelativePlayerX) > Math.abs(screenXRelativePlayerY)) {
       if(screenXRelativePlayerX > 0) {
         newPosXDiff = 50
         Log.d("Sokoban game", "Going right")
@@ -102,15 +103,14 @@ class SokobanGame : ApplicationAdapter(), InputProcessor {
       }
     } else {
       if(screenXRelativePlayerY > 0) {
-        newPosyDiff = 50
-        Log.d("Sokoban game", "Going up")
-      } else {
         newPosyDiff = -50
         Log.d("Sokoban game", "Going down")
+      } else {
+        newPosyDiff = 50
+        Log.d("Sokoban game", "Going up")
       }
     }
       player.setPosition(player.getX() + newPosXDiff, player.getY() + newPosyDiff)
     return true
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
   }
 }

@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 
-open class Actor(val sprite: Texture) {
+open class Actor(val sprite: Texture) : Drawable {
   val shape = Rectangle(0F, 0F, sprite.width.toFloat(), sprite.height.toFloat())
 
   fun setPosition(x: Float, y: Float) {
@@ -19,7 +19,7 @@ open class Actor(val sprite: Texture) {
     return shape.y
   }
 
-  fun draw(batch : SpriteBatch) {
+  override fun draw(batch : SpriteBatch) {
     batch.draw(sprite, shape.x, shape.y)
   }
 }
