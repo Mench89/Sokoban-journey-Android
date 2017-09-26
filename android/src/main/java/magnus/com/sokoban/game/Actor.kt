@@ -20,6 +20,7 @@ open class Actor(val sprite: Texture) : Drawable {
   }
 
   override fun draw(batch : SpriteBatch) {
-    batch.draw(sprite, shape.x, shape.y)
+    // Scale the textures x1.5
+    batch.draw(sprite, shape.x, shape.y, 96F, 96F)
   }
 }
