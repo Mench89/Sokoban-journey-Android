@@ -11,7 +11,8 @@
     android:theme="@style/AppTheme">
     <activity
       android:name=".start.StartMenuActivity"
-      android:screenOrientation="landscape">
+      android:screenOrientation="landscape"
+      android:configChanges="keyboard|keyboardHidden">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -19,7 +20,8 @@
       </intent-filter>
     </activity>
     <activity android:name=".game.WorldSelectorActivity"
-      android:screenOrientation="landscape">
+      android:screenOrientation="landscape"
+      android:configChanges="keyboard|keyboardHidden|orientation">
 
     </activity>
   </application>

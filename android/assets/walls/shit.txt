@@ -1,0 +1,21 @@
+Golv som man går på (floor.png)
+
+
+Vägg (Utan anslutningar) wall_0
+Vägg (Solid) wall_4
+Vägg (En anslutning) wall_1
+Vägg (Två anslutningar i motsatt riktning) wall_2a
+Vägg (Två anslutningar i motsatt riktning och ena sidan solid) wall_2b
+Vägg (Två anslutningar brevid varandra, aka 90 grader vinkel) wall_2c
+Vägg (Två anslutningar brevid varandra, aka 90 grader vinkel och solid på den korta vinkeln) wall_2d
+Vägg (Två anslutningar brevid varandra, aka 90 grader vinkel och solid på den långa vinkeln) wall_2e
+Vägg (Tre anslutningar) wall_3a
+Vägg (Tre anslutningar och solid på långa vinkeln) wall_3b
+Vägg (Tre anslutningar och solid på den ena korta vinkeln) wall_3c
+Vägg (fyra anslutningar) wall_4a
+Vägg (fyra anslutningar och solid på en vinkel) wall_4b
+Vägg (fyra anslutningar och solid på två motsatta vinklar) wall_4c
+Mål
+Spelare
+Boxar
+Bakgrundsbild till allt

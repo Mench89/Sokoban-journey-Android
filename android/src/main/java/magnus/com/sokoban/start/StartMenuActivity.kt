@@ -26,7 +26,9 @@ class StartMenuActivity : AppCompatActivity() {
     val menuList = findViewById<ListView>(R.id.menu_list)
     val menuItems = ArrayList<MenuItem>()
     menuItems.add(MenuItem("Start game", View.OnClickListener {
-      startActivity(Intent(this, WorldSelectorActivity::class.java))
+      val intent = Intent(this, WorldSelectorActivity::class.java)
+      //intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+      startActivity(intent)
     }))
     menuItems.add(MenuItem("Exit", View.OnClickListener {
       Log.d("StartMenuActivity", "Exiting game. Good bye!")
