@@ -3,52 +3,26 @@ package magnus.com.sokoban.game;
 import android.util.Log
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.input.GestureDetector
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
-class SokobanGame : ApplicationAdapter(), GestureDetector.GestureListener {
-  override fun touchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean {
-    return false
-  }
+class SokobanGame : ApplicationAdapter(), InputHandler.UserInteractionListener {
 
-  override fun fling(velocityX: Float, velocityY: Float, button: Int): Boolean {
-    return false
-  }
-
-  override fun zoom(initialDistance: Float, distance: Float): Boolean {
-    return false
-  }
-
-  override fun pan(x: Float, y: Float, deltaX: Float, deltaY: Float): Boolean {
-    return false
-  }
-
-  override fun pinchStop() {
-  }
-
-  override fun panStop(x: Float, y: Float, pointer: Int, button: Int): Boolean {
-    return false
-  }
-
-  override fun longPress(x: Float, y: Float): Boolean {
-    return false
-  }
-
-  override fun pinch(initialPointer1: Vector2?, initialPointer2: Vector2?, pointer1: Vector2?, pointer2: Vector2?): Boolean {
-    return false
-  }
-
-  override fun tap(x: Float, y: Float, count: Int, button: Int): Boolean {
-    camera?.unproject(touchPoint.set(x, y, 0F))
-
-    Log.d("Sokoban game", "Touch x: $x y: $y")
+  override fun onUserTapped(tappedPoint: Vector3) {
     var newPosXDiff = 0
     var newPosyDiff = 0
-    val screenXRelativePlayerX = touchPoint.x - (player.getX().toInt() + (player.shape.width / 2))
-    val screenXRelativePlayerY = touchPoint.y - (player.getY().toInt() + (player.shape.height / 2))
+    val screenXRelativePlayerX = tappedPoint.x - (player.getX().toInt() + (player.shape.width / 2))
+    val screenXRelativePlayerY = tappedPoint.y - (player.getY().toInt() + (player.shape.height / 2))
 
     if (Math.abs(screenXRelativePlayerX) > Math.abs(screenXRelativePlayerY)) {
       if(screenXRelativePlayerX > 0) {
@@ -76,9 +50,6 @@ class SokobanGame : ApplicationAdapter(), GestureDetector.GestureListener {
     } else {
       checkForBoxCollision(newPosXDiff, newPosyDiff)
     }
-
-
-    return true
   }
 
   private fun checkForBoxCollision(newPosXDiff : Int, newPosYDiff : Int) {
@@ -91,15 +62,9 @@ class SokobanGame : ApplicationAdapter(), GestureDetector.GestureListener {
         player.setPosition(player.getX() - newPosXDiff, player.getY() - newPosYDiff)
         box.setPosition(box.getX() - newPosXDiff, box.getY() - newPosYDiff)
         return
-      } else {
-
-
-        return
       }
     }
   }
-
-  private var camera: OrthographicCamera? = null
 
   lateinit var batch: SpriteBatch
   lateinit var player: Player
@@ -107,34 +72,77 @@ class SokobanGame : ApplicationAdapter(), GestureDetector.GestureListener {
   lateinit var walls: Walls
   lateinit var floor: Floor
   lateinit var box: Box
-  var touchPoint = Vector3()
+  lateinit var target: Target
+  lateinit var targetStateModel: TargetStateModel
+  lateinit var stage: Stage
+  lateinit var targetLabel: Label
 
   override fun create() {
     batch = SpriteBatch()
+    initWorld()
+
+    val camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+    camera.setToOrtho(false, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+var drawable = TextureRegionDrawable(TextureRegion(Texture("mouse_hover.png")))
+
+    val skin = Skin(Gdx.files.internal("skin/uiskin.json"))
+    val resetButton = TextButton("Reset", skin)
+    resetButton.isTransform = true
+    resetButton.setScale(3F, 3F)
+    resetButton.setColor(1F,0F,0F,1F)
+    resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * 3F, 0F)
+    resetButton.addListener {
+      initWorld()
+      true
+    }
+    val undoButton = TextButton("Undo", skin)
+    undoButton.isTransform = true
+    undoButton.setScale(3F, 3F)
+    undoButton.setColor(0F,1F,0F,1F)
+    undoButton.setPosition(Gdx.graphics.width.toFloat() - undoButton.width * 3F, resetButton.height*4)
+    targetLabel = Label("0", skin)
+    targetLabel.setFontScale(4F)
+    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width * 4F, Gdx.graphics.height.toFloat() - targetLabel.height*4F)
+    stage = Stage()
+    stage.addActor(resetButton)
+    stage.addActor(undoButton)
+    stage.addActor(targetLabel)
+    val inputMultiplexer = InputMultiplexer()
+    inputMultiplexer.addProcessor(stage)
+    inputMultiplexer.addProcessor(GestureDetector(InputHandler(camera, this)))
+    Gdx.input.inputProcessor = inputMultiplexer
+  }
+
+  override fun render() {
+    targetStateModel.update()
+    Log.d("Sokoban game", "Number of reached targets: " + targetStateModel.numberOfReachedTargets)
+    targetLabel.setText(targetStateModel.numberOfReachedTargets.toString())
+
+    batch.begin()
+    world.draw(batch)
+    floor.draw(batch)
+    walls.draw(batch)
+    target.draw(batch)
+    box.draw(batch)
+    player.draw(batch)
+    batch.end()
+
+    stage.draw()
+  }
+
+  override fun dispose() {
+    batch.dispose()
+  }
+
+  private fun initWorld() {
     player = Player()
     world = World()
     walls = Walls()
     floor = Floor()
     box = Box()
     box.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 4)
-
-    camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-    camera?.setToOrtho(false, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-
-    Gdx.input.inputProcessor = GestureDetector(this)
-  }
-
-  override fun render() {
-    batch.begin()
-    world.draw(batch)
-    floor.draw(batch)
-    walls.draw(batch)
-    box.draw(batch)
-    player.draw(batch)
-    batch.end()
-  }
-
-  override fun dispose() {
-    batch.dispose()
+    target = Target()
+    target.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 6)
+    targetStateModel = TargetStateModel(arrayOf(box), arrayOf(target))
   }
 }
