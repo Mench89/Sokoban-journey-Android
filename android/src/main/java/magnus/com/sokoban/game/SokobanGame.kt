@@ -5,18 +5,19 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
-class SokobanGame : ApplicationAdapter(), InputHandler.UserInteractionListener {
+class SokobanGame : ApplicationAdapter(), InputHandler.UserInteractionListener, TargetStateModel.GameStateListener {
+  override fun onAllTargetsReached() {
+    Log.d("Sokoban game", "WINNER WINNER TACO DINNER!")
+    stage.addActor(winnerLabel)
+  }
 
   override fun onUserTapped(tappedPoint: Vector3) {
     var newPosXDiff = 0
@@ -76,16 +77,23 @@ class SokobanGame : ApplicationAdapter(), InputHandler.UserInteractionListener {
   lateinit var targetStateModel: TargetStateModel
   lateinit var stage: Stage
   lateinit var targetLabel: Label
+  lateinit var skin: Skin
+  lateinit var winnerLabel: Label
 
   override fun create() {
     batch = SpriteBatch()
+    stage = Stage()
+    skin = Skin(Gdx.files.internal("skin/uiskin.json"))
+
+    winnerLabel = Label("WINNER WINNER TACO DINNER!", skin)
+    winnerLabel.setFontScale(4F)
+    winnerLabel.setPosition(Gdx.graphics.width / 2 - (winnerLabel.width * 4F / 2), Gdx.graphics.height / 2 + (winnerLabel.height * 4F / 2))
+
     initWorld()
 
     val camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
     camera.setToOrtho(false, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-var drawable = TextureRegionDrawable(TextureRegion(Texture("mouse_hover.png")))
 
-    val skin = Skin(Gdx.files.internal("skin/uiskin.json"))
     val resetButton = TextButton("Reset", skin)
     resetButton.isTransform = true
     resetButton.setScale(3F, 3F)
@@ -103,7 +111,7 @@ var drawable = TextureRegionDrawable(TextureRegion(Texture("mouse_hover.png")))
     targetLabel = Label("0", skin)
     targetLabel.setFontScale(4F)
     targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width * 4F, Gdx.graphics.height.toFloat() - targetLabel.height*4F)
-    stage = Stage()
+    //stage = Stage()
     stage.addActor(resetButton)
     stage.addActor(undoButton)
     stage.addActor(targetLabel)
@@ -142,7 +150,8 @@ var drawable = TextureRegionDrawable(TextureRegion(Texture("mouse_hover.png")))
     box = Box()
     box.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 4)
     target = Target()
-    target.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 6)
-    targetStateModel = TargetStateModel(arrayOf(box), arrayOf(target))
+    target.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 8)
+    targetStateModel = TargetStateModel(arrayOf(box), arrayOf(target), this)
+    winnerLabel.remove()
   }
 }
