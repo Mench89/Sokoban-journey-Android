@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 
+/**
+ * Class representing multiple tiles of walls. This is to reduce the number of duplicates of wall textures.
+ */
 class Walls : Drawable {
 
   val texture = Texture("wall1.png")
@@ -17,10 +20,6 @@ class Walls : Drawable {
       createWallSHape(WorldConstants.CELL_SIZE * 2, WorldConstants.CELL_SIZE * 2),
       createWallSHape(WorldConstants.CELL_SIZE * 2, WorldConstants.CELL_SIZE * 3),
       createWallSHape(WorldConstants.CELL_SIZE * 2, WorldConstants.CELL_SIZE * 4))
-
-  public fun checkForCollision(otherShape: Rectangle) : Boolean {
-    return wallShapes.any { it.overlaps(otherShape) }
-  }
 
   override fun draw(batch: SpriteBatch) {
     for (wallPosition in wallShapes) {

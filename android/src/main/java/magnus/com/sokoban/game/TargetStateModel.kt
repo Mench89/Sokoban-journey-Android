@@ -35,7 +35,7 @@ class TargetStateModel(val boxes: Array<Box>, val targets: Array<Target>, val li
     var reachedTargets = 0
     for (box in boxes) {
       targets
-          .filter { box.shape.overlaps(it.shape) }
+          .filter { CollisionHelper.isColliding(box.shape, it.shape) }
           .forEach { reachedTargets++ }
     }
     numberOfReachedTargets = reachedTargets

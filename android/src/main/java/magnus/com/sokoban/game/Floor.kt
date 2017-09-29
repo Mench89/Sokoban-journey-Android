@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 
+/**
+ * Class representing multiple floor tiles.
+ */
 class Floor : Drawable {
 
   val texture = Texture("floor1.png")

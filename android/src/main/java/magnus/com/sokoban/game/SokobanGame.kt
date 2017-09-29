@@ -44,7 +44,7 @@ class SokobanGame : ApplicationAdapter(), InputHandler.UserInteractionListener, 
     }
     // TODO: Validate if positoin is valid to move to.
     player.setPosition(player.getX() + newPosXDiff, player.getY() + newPosyDiff)
-    if(walls.checkForCollision(player.shape)) {
+    if(CollisionHelper.isCollidingWithAny(player.shape, walls.wallShapes)) {
       Log.d("Sokoban game", "Player went into a wall!")
       // Player went into a wall! Revert player position.
       player.setPosition(player.getX() - newPosXDiff, player.getY() - newPosyDiff)
@@ -55,10 +55,10 @@ class SokobanGame : ApplicationAdapter(), InputHandler.UserInteractionListener, 
 
   private fun checkForBoxCollision(newPosXDiff : Int, newPosYDiff : Int) {
     // TODO: Handle new player pos if code above is changed.
-    if(player.shape.overlaps(box.shape)) {
+    if(CollisionHelper.isColliding(player.shape, box.shape)) {
       box.setPosition(box.getX() + newPosXDiff, box.getY() + newPosYDiff)
 
-      if(walls.checkForCollision(box.shape)) {
+      if(CollisionHelper.isCollidingWithAny(box.shape, walls.wallShapes)) {
         // Revert player and box positions.
         player.setPosition(player.getX() - newPosXDiff, player.getY() - newPosYDiff)
         box.setPosition(box.getX() - newPosXDiff, box.getY() - newPosYDiff)
