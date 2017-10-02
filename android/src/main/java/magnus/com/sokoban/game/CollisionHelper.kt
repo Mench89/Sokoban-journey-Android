@@ -22,5 +22,12 @@ class CollisionHelper private constructor() {
     fun isCollidingWithAny(anObject: Rectangle, others: Array<Rectangle>): Boolean {
       return others.any { it.overlaps(anObject) }
     }
+
+    /**
+     * Return the number of objects the object is colliding with.
+     */
+    fun numberOfCollisions(anObject: Rectangle, others: Array<Rectangle>): Int {
+      return others.count { anObject.overlaps(it) }
+    }
   }
 }
