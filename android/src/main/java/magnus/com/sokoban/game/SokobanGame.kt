@@ -65,6 +65,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * 3F, 0F)
     resetButton.addListener {
       initWorld()
+      initInputHandlers()
       true
     }
     val undoButton = TextButton("Undo", skin)
@@ -77,11 +78,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     stage.addActor(undoButton)
     stage.addActor(targetLabel)
 
-    movementHandler = MovementHandler(level, this)
-    val inputMultiplexer = InputMultiplexer()
-    inputMultiplexer.addProcessor(stage)
-    inputMultiplexer.addProcessor(movementHandler.gestureDetector)
-    Gdx.input.inputProcessor = inputMultiplexer
+    initInputHandlers()
   }
 
   override fun render() {
@@ -119,5 +116,13 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     winnerLabel.remove()
     targetLabel.setText("0")
     targetStateModel = TargetStateModel(level.boxes, level.targets, this)
+  }
+
+  private fun initInputHandlers() {
+    movementHandler = MovementHandler(level, this)
+    val inputMultiplexer = InputMultiplexer()
+    inputMultiplexer.addProcessor(stage)
+    inputMultiplexer.addProcessor(movementHandler.gestureDetector)
+    Gdx.input.inputProcessor = inputMultiplexer
   }
 }
