@@ -5,11 +5,19 @@ import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import java.util.*
 
+// TODO: Select levels
+// TODO: Add swipe input
+// TODO: Map editor?
+// TODO: Animations
+// TODO: Fix reset
+// TODO: Add history and fix undo
 class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, MovementHandler.MovementListener {
 
   override fun onPlayerMoved() {
@@ -32,6 +40,8 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
   lateinit var level: Level
   lateinit var movementHandler: MovementHandler
   lateinit var targetStateModel: TargetStateModel
+  // TODO: Only for test
+  lateinit var levelParser: LevelParser
 
   override fun create() {
     batch = SpriteBatch()
@@ -86,11 +96,26 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
   }
 
   private fun initWorld() {
-    val box = Box()
-    box.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 4)
-    val target = Target()
-    target.setPosition(WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE * 8)
-    level = Level(Player(), World(), Walls(), Floor(), arrayOf(box), arrayOf(target), this)
+    val box = Box(Vector2(1F, 4F))
+    val target = Target(Vector2(1F, 8F))
+    val wallPositions = ArrayList<Vector2>()
+    wallPositions.add(Vector2(0F, 0F))
+    wallPositions.add(Vector2(0F, 1F))
+    wallPositions.add(Vector2(0F, 2F))
+    wallPositions.add(Vector2(0F, 3F))
+    wallPositions.add(Vector2(0F, 4F))
+    wallPositions.add(Vector2(2F, 0F))
+    wallPositions.add(Vector2(2F, 1F))
+    wallPositions.add(Vector2(2F, 2F))
+    wallPositions.add(Vector2(2F, 3F))
+    wallPositions.add(Vector2(2F, 4F))
+    val floorPositions = ArrayList<Vector2>()
+    floorPositions.add(Vector2(1F, 0F))
+    floorPositions.add(Vector2(1F, 1F))
+    floorPositions.add(Vector2(1F, 2F))
+    floorPositions.add(Vector2(1F, 3F))
+    //level = Level(Player(Vector2(1F, 1F)), World(), Walls(wallPositions), Floor(floorPositions), Collections.singletonList(box), Collections.singletonList(target))
+    level = LevelParser.parseLevel("world1/1-10.xml")
     winnerLabel.remove()
     targetLabel.setText("0")
     targetStateModel = TargetStateModel(level.boxes, level.targets, this)

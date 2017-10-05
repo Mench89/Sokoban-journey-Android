@@ -1,0 +1,123 @@
+<worlds>
+	<world>
+		<name>Swamp</name>
+		<order>1</order>
+		<location>world 1/</location>
+		<levels>
+			<level>
+				<name>First draft</name>
+				<order>1</order>
+				<location>1-1.xml</location>
+			</level>
+			<level>
+				<name>Second draft</name>
+				<order>2</order>
+				<location>1-2.xml</location>
+			</level>
+			<level>
+				<name>Third draft</name>
+				<order>3</order>
+				<location>1-3.xml</location>
+			</level>
+			<level>
+				<name>Fourth draft</name>
+				<order>4</order>
+				<location>1-4.xml</location>
+			</level>
+			<level>
+				<name>Fith draft</name>
+				<order>5</order>
+				<location>1-5.xml</location>
+			</level>
+			<level>
+				<name>Sixth draft</name>
+				<order>6</order>
+				<location>1-6.xml</location>
+			</level>
+			<level>
+				<name>Seventh draft</name>
+				<order>7</order>
+				<location>1-7.xml</location>
+			</level>
+			<level>
+				<name>8:th draft</name>
+				<order>8</order>
+				<location>1-8.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>9</order>
+				<location>1-9.xml</location>
+			</level>
+			<level>
+				<name>10:th draft</name>
+				<order>10</order>
+				<location>1-10.xml</location>
+			</level>
+		</levels>
+	</world>
+	<world>
+		<name>Heaven</name>
+		<order>2</order>
+		<location>world 2/</location>
+		<levels>
+			<level>
+				<name>9:th draft</name>
+				<order>1</order>
+				<location>2-1.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>2</order>
+				<location>2-2.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>3</order>
+				<location>2-3.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>4</order>
+				<location>2-4.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>5</order>
+				<location>2-5.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>6</order>
+				<location>2-6.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>7</order>
+				<location>2-7.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>8</order>
+				<location>2-8.xml</location>
+			</level>
+			<level>
+				<name>9:th draft</name>
+				<order>9</order>
+				<location>2-9.xml</location>
+			</level>
+		</levels>
+	</world>
+	<world>
+		<name>Costum</name>
+		<order>3</order>
+		<location>world 3/</location>
+		<levels>
+			<level>
+				<name>Costum level 1</name>
+				<order>1</order>
+				<location>3-1.xml</location>
+			</level>
+		</levels>
+	</world>
+</worlds>

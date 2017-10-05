@@ -1,12 +1,13 @@
 package magnus.com.sokoban.game
 
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.math.Vector2
 
 /**
  * Class representing the player.
  */
-class Player : Actor(Texture("player.png")) {
+class Player(position: Vector2) : Actor(Texture("player.png")) {
   init {
-    setPosition(96F, 96F)
+    setPosition(position.x * WorldConstants.CELL_SIZE, position.y * WorldConstants.CELL_SIZE)
   }
 }

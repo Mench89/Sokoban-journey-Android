@@ -3,12 +3,17 @@ package magnus.com.sokoban.game
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 
 open class Actor(val sprite: Texture) : Drawable {
   val shape = Rectangle(0F, 0F, sprite.width.toFloat(), sprite.height.toFloat())
 
   fun setPosition(x: Float, y: Float) {
     shape.setPosition(x, y)
+  }
+
+  fun setPosition(position: Vector2) {
+    shape.setPosition(position)
   }
 
   fun getX() : Float {

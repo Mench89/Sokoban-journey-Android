@@ -65,7 +65,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
 
         val boxShapes = ArrayList<Rectangle>()
         level.boxes.mapTo(boxShapes) { it.shape }
-        if (CollisionHelper.isCollidingWithAny(box.shape, level.walls.wallShapes) || CollisionHelper.numberOfCollisions(box.shape, boxShapes.toTypedArray()) > 1) {
+        if (CollisionHelper.isCollidingWithAny(box.shape, level.walls.wallShapes) || CollisionHelper.numberOfCollisions(box.shape, boxShapes) > 1) {
           // Revert player and box positions.
           level.player.setPosition(level.player.getX() - newPosXDiff, level.player.getY() - newPosYDiff)
           box.setPosition(box.getX() - newPosXDiff, box.getY() - newPosYDiff)

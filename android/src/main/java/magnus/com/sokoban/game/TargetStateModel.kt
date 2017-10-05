@@ -5,7 +5,7 @@ import android.util.Log
 /**
  * Holds the current state of number of target reached.
  */
-class TargetStateModel(val boxes: Array<Box>, val targets: Array<Target>, val listener: GameStateListener) {
+class TargetStateModel(val boxes: List<Box>, val targets: List<Target>, val listener: GameStateListener) {
 
   val numberOfTotalTargets = targets.size
   var numberOfReachedTargets = 0

@@ -2,7 +2,7 @@ package magnus.com.sokoban.game
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 
-class Level(val player: Player, val world: World, val walls: Walls, val floor: Floor, val boxes: Array<Box>, val targets: Array<Target>, listener: TargetStateModel.GameStateListener)
+class Level(val player: Player, val world: World, val walls: Walls, val floor: Floor, val boxes: List<Box>, val targets: List<Target>)
   : Drawable{
 
   override fun draw(batch: SpriteBatch) {
