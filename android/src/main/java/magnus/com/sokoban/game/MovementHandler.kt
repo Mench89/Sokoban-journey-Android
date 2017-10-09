@@ -5,14 +5,33 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 
 class MovementHandler(val level: Level, val listener: MovementListener) : InputHandler.UserInteractionListener {
 
+  var isPlayerPanning = false
+
+  override fun onUserPanStopped(pannedPoint: Vector3) {
+    isPlayerPanning = false
+  }
+
+  override fun onUserTouchedDown(tappedPoint: Vector3) {
+    if(userClickedOnPlayer(tappedPoint)) {
+      isPlayerPanning = true
+    }
+  }
+
+  override fun onUserPan(pannedPoint: Vector3) {
+    if (isPlayerPanning && level.player.getPosition().dst(pannedPoint.x, pannedPoint.y) > WorldConstants.CELL_SIZE) {
+      onUserTapped(pannedPoint)
+    }
+  }
+
   val gestureDetector: GestureDetector?
 
   interface MovementListener {
-    fun onPlayerMoved();
+    fun onPlayerMoved()
   }
 
   init {
@@ -22,6 +41,10 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
   }
 
   override fun onUserTapped(tappedPoint: Vector3) {
+    if(userClickedOnPlayer(tappedPoint)) {
+      return
+    }
+
     var newPosXDiff = 0F
     var newPosyDiff = 0F
     val screenXRelativePlayerX = tappedPoint.x - (level.player.getX().toInt() + (level.player.shape.width / 2))
@@ -51,13 +74,13 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
       // Player went into a wall! Revert player position.
       level.player.setPosition(level.player.getX() - newPosXDiff, level.player.getY() - newPosyDiff)
     } else {
-      checkForBoxCollision(newPosXDiff, newPosyDiff)
+      if(!checkForBoxCollision(newPosXDiff, newPosyDiff)) {
+        listener.onPlayerMoved()
+      }
     }
-
-    listener.onPlayerMoved()
   }
 
-  private fun checkForBoxCollision(newPosXDiff: Float, newPosYDiff: Float) {
+  private fun checkForBoxCollision(newPosXDiff: Float, newPosYDiff: Float) : Boolean {
     // TODO: Handle new player pos if code above is changed.
     for (box in level.boxes) {
       if (CollisionHelper.isColliding(level.player.shape, box.shape)) {
@@ -69,11 +92,14 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
           // Revert player and box positions.
           level.player.setPosition(level.player.getX() - newPosXDiff, level.player.getY() - newPosYDiff)
           box.setPosition(box.getX() - newPosXDiff, box.getY() - newPosYDiff)
-          return
+          return true
         }
-
-        return
       }
     }
+    return false
+  }
+
+  private fun userClickedOnPlayer(tappedPoint: Vector3): Boolean {
+    return level.player.shape.contains(Vector2(tappedPoint.x, tappedPoint.y))
   }
 }

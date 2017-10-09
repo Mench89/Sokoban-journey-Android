@@ -24,6 +24,10 @@ open class Actor(val sprite: Texture) : Drawable {
     return shape.y
   }
 
+  fun getPosition() : Vector2 {
+    return Vector2(getX(), getY())
+  }
+
   override fun draw(batch : SpriteBatch) {
     // Scale the textures x1.5
     batch.draw(sprite, shape.x, shape.y, WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE)

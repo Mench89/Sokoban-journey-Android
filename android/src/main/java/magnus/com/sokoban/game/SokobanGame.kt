@@ -16,12 +16,12 @@ import java.util.*
 // TODO: Add swipe input
 // TODO: Map editor?
 // TODO: Animations
-// TODO: Fix reset
 // TODO: Add history and fix undo
 class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, MovementHandler.MovementListener {
 
   override fun onPlayerMoved() {
     targetStateModel.update()
+    historyHandler.notifyWorldUpdate()
     Log.d("Sokoban game", "Number of reached targets: " + targetStateModel.numberOfReachedTargets)
     targetLabel.setText(targetStateModel.numberOfReachedTargets.toString())
   }
@@ -31,7 +31,6 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     stage.addActor(winnerLabel)
   }
 
-  // TODO: Stuffs to remain here...
   lateinit var batch: SpriteBatch
   lateinit var skin: Skin
   lateinit var stage: Stage
@@ -40,8 +39,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
   lateinit var level: Level
   lateinit var movementHandler: MovementHandler
   lateinit var targetStateModel: TargetStateModel
-  // TODO: Only for test
-  lateinit var levelParser: LevelParser
+  lateinit var historyHandler: HistoryHandler
 
   override fun create() {
     batch = SpriteBatch()
@@ -73,6 +71,11 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     undoButton.setScale(3F, 3F)
     undoButton.setColor(0F,1F,0F,1F)
     undoButton.setPosition(Gdx.graphics.width.toFloat() - undoButton.width * 3F, resetButton.height*4)
+    undoButton.addListener {
+      // TODO: Only handle one event!
+        historyHandler.timetravel()
+      false
+  }
 
     stage.addActor(resetButton)
     stage.addActor(undoButton)
@@ -116,6 +119,8 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     winnerLabel.remove()
     targetLabel.setText("0")
     targetStateModel = TargetStateModel(level.boxes, level.targets, this)
+
+    historyHandler = HistoryHandler(level)
   }
 
   private fun initInputHandlers() {
