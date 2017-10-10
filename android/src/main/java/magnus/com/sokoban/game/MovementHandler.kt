@@ -11,9 +11,11 @@ import com.badlogic.gdx.math.Vector3
 class MovementHandler(val level: Level, val listener: MovementListener) : InputHandler.UserInteractionListener {
 
   var isPlayerPanning = false
+  var previousPannedPosition : Rectangle?
 
   override fun onUserPanStopped(pannedPoint: Vector3) {
     isPlayerPanning = false
+    previousPannedPosition = null
   }
 
   override fun onUserTouchedDown(tappedPoint: Vector3) {
@@ -23,7 +25,13 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
   }
 
   override fun onUserPan(pannedPoint: Vector3) {
-    if (isPlayerPanning && level.player.getPosition().dst(pannedPoint.x, pannedPoint.y) > WorldConstants.CELL_SIZE) {
+    // Only pan the player if user moved a small distance away from player.
+    var panningThreshold = WorldConstants.CELL_SIZE * 0.70
+    if(previousPannedPosition?.contains(Vector2(pannedPoint.x, pannedPoint.y)) == true) {
+      Log.d("Sokoban Game", "Trying to go back go previous square, increase panning threshold")
+      panningThreshold = WorldConstants.CELL_SIZE * 0.90
+    }
+    if (isPlayerPanning && level.player.getCenterPosition().dst(pannedPoint.x, pannedPoint.y) > panningThreshold) {
       onUserTapped(pannedPoint)
     }
   }
@@ -38,6 +46,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
     val camera = OrthographicCamera(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
     camera.setToOrtho(false, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
     gestureDetector = GestureDetector(InputHandler(camera, this))
+    previousPannedPosition = null
   }
 
   override fun onUserTapped(tappedPoint: Vector3) {
@@ -68,6 +77,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
       }
     }
 
+    val soonPreviousPanningPosition = Rectangle(level.player.shape)
     level.player.setPosition(level.player.getX() + newPosXDiff, level.player.getY() + newPosyDiff)
     if (CollisionHelper.isCollidingWithAny(level.player.shape, level.walls.wallShapes)) {
       Log.d("Sokoban game", "Player went into a wall!")
@@ -75,6 +85,9 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
       level.player.setPosition(level.player.getX() - newPosXDiff, level.player.getY() - newPosyDiff)
     } else {
       if(!checkForBoxCollision(newPosXDiff, newPosyDiff)) {
+        if (isPlayerPanning) {
+          previousPannedPosition = soonPreviousPanningPosition
+        }
         listener.onPlayerMoved()
       }
     }

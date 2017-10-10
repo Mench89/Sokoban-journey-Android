@@ -28,6 +28,11 @@ open class Actor(val sprite: Texture) : Drawable {
     return Vector2(getX(), getY())
   }
 
+  fun getCenterPosition(): Vector2 {
+    val center = Vector2()
+    return shape.getCenter(center)
+  }
+
   override fun draw(batch : SpriteBatch) {
     // Scale the textures x1.5
     batch.draw(sprite, shape.x, shape.y, WorldConstants.CELL_SIZE, WorldConstants.CELL_SIZE)

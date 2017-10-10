@@ -35,7 +35,6 @@ class HistoryHandler(val level: Level) {
    * Go back in time and revert one world tick!
    */
   fun timetravel() {
-    // TODO: Keep original state.
     if (!playerHistory.isEmpty()) {
       if(playerHistory.size == 1) {
         level.player.setPosition(playerHistory[0])
