@@ -7,6 +7,7 @@ import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import magnus.com.sokoban.game.level.Level
 
 class MovementHandler(val level: Level, val listener: MovementListener) : InputHandler.UserInteractionListener {
 

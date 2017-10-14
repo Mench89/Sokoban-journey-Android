@@ -1,17 +1,19 @@
-package magnus.com.sokoban.game
+package magnus.com.sokoban.game.level
 
 import android.util.Xml
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.XmlReader
+import magnus.com.sokoban.game.*
+import magnus.com.sokoban.game.Target
 
 class LevelParser private constructor() {
   companion object {
     fun parseLevel(path: String): Level {
 
       val parser = Xml.newPullParser()
-      val fileHandler = Gdx.files.internal("maps/" + path)
+      val fileHandler = Gdx.files.internal(WorldConstants.LEVELS_FILE_PATH + path)
       parser.setInput(fileHandler.reader())
       val red = XmlReader().parse(fileHandler)
       val environmentXml = red.getChildByNameRecursive("environment")

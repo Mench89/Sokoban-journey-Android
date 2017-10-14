@@ -1,6 +1,7 @@
 package magnus.com.sokoban.game
 
 import com.badlogic.gdx.math.Vector2
+import magnus.com.sokoban.game.level.Level
 
 /**
  * Class to save and restore movement history of player and moveable objects.
@@ -34,7 +35,7 @@ class HistoryHandler(val level: Level) {
   /**
    * Go back in time and revert one world tick!
    */
-  fun timetravel() {
+  fun timeTravel() {
     if (!playerHistory.isEmpty()) {
       if(playerHistory.size == 1) {
         level.player.setPosition(playerHistory[0])

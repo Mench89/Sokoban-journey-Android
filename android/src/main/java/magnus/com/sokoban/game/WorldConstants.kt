@@ -11,5 +11,7 @@ class WorldConstants private constructor() {
      * times 1.5 in order to scale the graphics some on mobile devices.
      */
     const val CELL_SIZE = 96F
+
+    const val LEVELS_FILE_PATH = "maps/"
   }
 }

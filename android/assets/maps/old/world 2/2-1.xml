@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<map>
+	<settings>
+		<themes>
+			<wall>temple</wall>
+			<floor>temple</floor>
+			<box>temple</box>
+			<target>temple</target>
+			<player>temple</player>
+			<background>temple</background>
+		</themes>
+		<camera>
+			<defined>0</defined>
+			<start x="7" y="7" />
+			<zoom>400</zoom>
+		</camera>
+	</settings>
+	<goal>
+		<gold>97</gold>
+		<silver>107</silver>
+		<bronze>117</bronze>
+	</goal>
+	<environment>
+		<floors>
+			<floor x="1" y="2" />
+		</floors>
+		<walls>
+			<wall x="0" y="0" sprite="1" />
+			<wall x="0" y="1" sprite="1" />
+			<wall x="0" y="2" sprite="1" />
+			<wall x="0" y="3" sprite="1" />
+			<wall x="0" y="4" sprite="1" />
+			<wall x="0" y="5" sprite="1" />
+			<wall x="1" y="0" sprite="1" />
+			<wall x="1" y="5" sprite="1" />
+			<wall x="2" y="0" sprite="1" />
+			<wall x="2" y="1" sprite="1" />
+			<wall x="2" y="2" sprite="1" />
+			<wall x="2" y="3" sprite="1" />
+			<wall x="2" y="4" sprite="1" />
+			<wall x="2" y="5" sprite="1" />
+			<wall x="3" y="5" sprite="1" />
+		</walls>
+		<boxes>
+			<box x="1" y="3" sprite="1" />
+		</boxes>
+		<targets>
+			<target x="1" y="1" sprite="1" />
+		</targets>
+		<player x="1" y="4" />
+	</environment>
+</map>

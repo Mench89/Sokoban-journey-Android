@@ -10,13 +10,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import magnus.com.sokoban.game.level.Level
+import magnus.com.sokoban.game.level.LevelManager
 import java.util.*
 
 // TODO: Select levels
-// TODO: Add swipe input
+// TODO: Show steps and other stats
 // TODO: Map editor?
 // TODO: Animations
-// TODO: Add history and fix undo
+// TODO: Add credits
+// TODO: Check if large maps works, if not, camera panning is maybe needed.
+// TODO: Fix missing tiles on some maps.
 class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, MovementHandler.MovementListener {
 
   override fun onPlayerMoved() {
@@ -55,6 +59,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     winnerLabel.setPosition(Gdx.graphics.width / 2 - (winnerLabel.width * 4F / 2), Gdx.graphics.height / 2 + (winnerLabel.height * 4F / 2))
 
     initWorld()
+    LevelManager().listAllLevelNames()
 
     val resetButton = TextButton("Reset", skin)
     resetButton.isTransform = true
@@ -73,7 +78,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     undoButton.setPosition(Gdx.graphics.width.toFloat() - undoButton.width * 3F, resetButton.height*4)
     undoButton.addListener {
       // TODO: Only handle one event!
-        historyHandler.timetravel()
+        historyHandler.timeTravel()
       false
   }
 
@@ -115,7 +120,9 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     floorPositions.add(Vector2(1F, 2F))
     floorPositions.add(Vector2(1F, 3F))
     //level = Level(Player(Vector2(1F, 1F)), World(), Walls(wallPositions), Floor(floorPositions), Collections.singletonList(box), Collections.singletonList(target))
-    level = LevelParser.parseLevel("world1/1-10.xml")
+    val levelManager = LevelManager()
+    level = levelManager.selectLevel("2-9.xml")
+    level = levelManager.nextLevel()!!
     winnerLabel.remove()
     targetLabel.setText("0")
     targetStateModel = TargetStateModel(level.boxes, level.targets, this)
