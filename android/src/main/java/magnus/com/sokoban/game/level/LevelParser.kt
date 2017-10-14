@@ -10,10 +10,10 @@ import magnus.com.sokoban.game.Target
 
 class LevelParser private constructor() {
   companion object {
-    fun parseLevel(path: String): Level {
+    fun parseLevel(levelName: String): Level {
 
       val parser = Xml.newPullParser()
-      val fileHandler = Gdx.files.internal(WorldConstants.LEVELS_FILE_PATH + path)
+      val fileHandler = Gdx.files.internal(WorldConstants.LEVELS_FILE_PATH + levelName)
       parser.setInput(fileHandler.reader())
       val red = XmlReader().parse(fileHandler)
       val environmentXml = red.getChildByNameRecursive("environment")
@@ -37,10 +37,10 @@ class LevelParser private constructor() {
       parsePositions(targetsXml).mapTo(targets) { Target(it) }
 
       // Player parsing
-      var playerXml = environmentXml.getChildByNameRecursive("player")
+      val playerXml = environmentXml.getChildByNameRecursive("player")
       val player = Player(Vector2(playerXml.getFloat("x"), playerXml.getFloat("y")))
 
-      return Level(player, World(), walls, floor, boxes, targets)
+      return Level(levelName, player, World(), walls, floor, boxes, targets)
     }
 
     private fun parsePositions(positionsXml: Array<XmlReader.Element>): List<Vector2> {

@@ -121,8 +121,11 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     floorPositions.add(Vector2(1F, 3F))
     //level = Level(Player(Vector2(1F, 1F)), World(), Walls(wallPositions), Floor(floorPositions), Collections.singletonList(box), Collections.singletonList(target))
     val levelManager = LevelManager()
-    level = levelManager.selectLevel("2-9.xml")
-    level = levelManager.nextLevel()!!
+    level = levelManager.selectLevel("2-08.xml")
+    if(levelManager.nextLevel() != null) {
+      level = levelManager.nextLevel()!!
+      levelManager.selectLevel(level)
+    }
     winnerLabel.remove()
     targetLabel.setText("0")
     targetStateModel = TargetStateModel(level.boxes, level.targets, this)

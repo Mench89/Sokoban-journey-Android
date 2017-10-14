@@ -24,17 +24,26 @@ class LevelManager {
     return LevelParser.parseLevel(name)
   }
 
+  fun selectLevel(level: Level) {
+    currentLevelName = level.name
+  }
+
+  /**
+   * Get the next level if there is one, otherwise {@code null}. Will not select a new level.
+   */
   fun nextLevel(): Level? {
     var foundCurrentLevel = false
     for (file in Gdx.files.internal(WorldConstants.LEVELS_FILE_PATH).list()) {
       if (!file.isDirectory) {
-        if (file.name() == currentLevelName) {
-          foundCurrentLevel = true
-          continue
-        }
+        val levelName = clipFileName(file.name())
+
         // If foundCurrentLevel is true then this is the next level!
         if(foundCurrentLevel) {
-          return selectLevel(file.name())
+          return LevelParser.parseLevel(levelName)
+        }
+
+        if (clipFileName(file.name()) == currentLevelName) {
+          foundCurrentLevel = true
         }
       }
     }
@@ -43,10 +52,7 @@ class LevelManager {
     return null
   }
 
-  private fun clipFileName(): String {
-
+  private fun clipFileName(filename: String): String {
+    return filename.substringAfter(WorldConstants.LEVELS_FILE_PATH)
   }
-  // TODO: Go to next level.
-  // TODO: Get current level.
-  // TODO:
 }
