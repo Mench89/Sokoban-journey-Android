@@ -21,6 +21,7 @@ import java.util.*
 // TODO: Add credits
 // TODO: Check if large maps works, if not, camera panning is maybe needed.
 // TODO: Fix missing tiles on some maps.
+// TODO: Fix multiple input clicks.
 class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, MovementHandler.MovementListener {
 
   override fun onPlayerMoved() {
@@ -31,8 +32,44 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
   }
 
   override fun onAllTargetsReached() {
-    Log.d("Sokoban game", "WINNER WINNER TACO DINNER!")
+    undoButton.remove()
+    resetButton.remove()
     stage.addActor(winnerLabel)
+    removePlayerInput()
+
+    val nextLevel = levelManager.nextLevel()
+    if (nextLevel != null) {
+      Log.d("Sokoban game", "WINNER WINNER TACO DINNER!")
+
+      val nextLevelButton = TextButton("Next level", skin)
+      nextLevelButton.isTransform = true
+      nextLevelButton.setScale(3F, 3F)
+      nextLevelButton.setColor(1F, 0F, 0F, 1F)
+      nextLevelButton.setPosition(Gdx.graphics.width / 2 - (nextLevelButton.width * 3F / 2), winnerLabel.y - 150)
+      nextLevelButton.addListener {
+        initWorld(nextLevel)
+        initInputHandlers()
+        nextLevelButton.remove()
+        true
+      }
+      stage.addActor(nextLevelButton)
+    } else {
+      // Last level was completed!
+      Log.d("Sokoban game", "WINNER WINNER LAST TACO DINNER!")
+      winnerLabel.setText("GZ, ALL TACO DINNERS\n  HAVE BEEN EATEN!")
+      val exitButton = TextButton("Exit game", skin)
+      exitButton.isTransform = true
+      exitButton.setScale(3F, 3F)
+      exitButton.setColor(1F, 0F, 0F, 1F)
+      exitButton.setPosition(Gdx.graphics.width / 2 - (exitButton.width * 3F / 2), winnerLabel.y - 200)
+      exitButton.addListener {
+        Gdx.app.exit()
+        true
+      }
+      stage.addActor(exitButton)
+
+    }
+
   }
 
   lateinit var batch: SpriteBatch
@@ -44,43 +81,50 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
   lateinit var movementHandler: MovementHandler
   lateinit var targetStateModel: TargetStateModel
   lateinit var historyHandler: HistoryHandler
+  lateinit var levelManager: LevelManager
+
+  // Buttons
+  lateinit var resetButton: TextButton
+  lateinit var undoButton: TextButton
 
   override fun create() {
     batch = SpriteBatch()
     stage = Stage()
     skin = Skin(Gdx.files.internal("skin/uiskin.json"))
 
+    levelManager = LevelManager()
+
     targetLabel = Label("0", skin)
     targetLabel.setFontScale(4F)
-    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width * 4F, Gdx.graphics.height.toFloat() - targetLabel.height*4F)
+    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width * 4F, Gdx.graphics.height.toFloat() - targetLabel.height * 4F)
 
     winnerLabel = Label("WINNER WINNER TACO DINNER!", skin)
     winnerLabel.setFontScale(4F)
-    winnerLabel.setPosition(Gdx.graphics.width / 2 - (winnerLabel.width * 4F / 2), Gdx.graphics.height / 2 + (winnerLabel.height * 4F / 2))
+    winnerLabel.setPosition(Gdx.graphics.width / 2 - (winnerLabel.width * 1.5F), Gdx.graphics.height / 2 + (winnerLabel.height * 4F / 2))
 
-    initWorld()
+    initWorld(levelManager.getLevel("2-05.xml")!!)
     LevelManager().listAllLevelNames()
 
-    val resetButton = TextButton("Reset", skin)
+    resetButton = TextButton("Reset", skin)
     resetButton.isTransform = true
     resetButton.setScale(3F, 3F)
-    resetButton.setColor(1F,0F,0F,1F)
+    resetButton.setColor(1F, 0F, 0F, 1F)
     resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * 3F, 0F)
     resetButton.addListener {
-      initWorld()
+      initWorld(levelManager.currentLevel()!!)
       initInputHandlers()
       true
     }
-    val undoButton = TextButton("Undo", skin)
+    undoButton = TextButton("Undo", skin)
     undoButton.isTransform = true
     undoButton.setScale(3F, 3F)
-    undoButton.setColor(0F,1F,0F,1F)
-    undoButton.setPosition(Gdx.graphics.width.toFloat() - undoButton.width * 3F, resetButton.height*4)
+    undoButton.setColor(0F, 1F, 0F, 1F)
+    undoButton.setPosition(Gdx.graphics.width.toFloat() - undoButton.width * 3F, resetButton.height * 4)
     undoButton.addListener {
       // TODO: Only handle one event!
-        historyHandler.timeTravel()
+      historyHandler.timeTravel()
       false
-  }
+    }
 
     stage.addActor(resetButton)
     stage.addActor(undoButton)
@@ -100,7 +144,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     batch.dispose()
   }
 
-  private fun initWorld() {
+  private fun initWorld(level: Level) {
     val box = Box(Vector2(1F, 4F))
     val target = Target(Vector2(1F, 8F))
     val wallPositions = ArrayList<Vector2>()
@@ -120,12 +164,8 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     floorPositions.add(Vector2(1F, 2F))
     floorPositions.add(Vector2(1F, 3F))
     //level = Level(Player(Vector2(1F, 1F)), World(), Walls(wallPositions), Floor(floorPositions), Collections.singletonList(box), Collections.singletonList(target))
-    val levelManager = LevelManager()
-    level = levelManager.selectLevel("2-08.xml")
-    if(levelManager.nextLevel() != null) {
-      level = levelManager.nextLevel()!!
-      levelManager.selectLevel(level)
-    }
+    levelManager.selectLevel(level)
+    this.level = level
     winnerLabel.remove()
     targetLabel.setText("0")
     targetStateModel = TargetStateModel(level.boxes, level.targets, this)
@@ -139,5 +179,12 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     inputMultiplexer.addProcessor(stage)
     inputMultiplexer.addProcessor(movementHandler.gestureDetector)
     Gdx.input.inputProcessor = inputMultiplexer
+  }
+
+  private fun removePlayerInput() {
+    val inputMultiplexer = Gdx.input.inputProcessor as InputMultiplexer
+    inputMultiplexer.removeProcessor(movementHandler.gestureDetector)
+    Gdx.input.inputProcessor = inputMultiplexer
+
   }
 }

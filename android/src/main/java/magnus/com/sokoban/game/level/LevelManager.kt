@@ -19,13 +19,16 @@ class LevelManager {
     return levelNameList
   }
 
-  fun selectLevel(name: String): Level {
-    currentLevelName = name
+  fun getLevel(name: String): Level? {
     return LevelParser.parseLevel(name)
   }
 
   fun selectLevel(level: Level) {
     currentLevelName = level.name
+  }
+
+  fun currentLevel(): Level? {
+    return LevelParser.parseLevel(currentLevelName)
   }
 
   /**

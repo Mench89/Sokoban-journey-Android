@@ -10,37 +10,42 @@ import magnus.com.sokoban.game.Target
 
 class LevelParser private constructor() {
   companion object {
-    fun parseLevel(levelName: String): Level {
+    fun parseLevel(levelName: String): Level? {
 
-      val parser = Xml.newPullParser()
-      val fileHandler = Gdx.files.internal(WorldConstants.LEVELS_FILE_PATH + levelName)
-      parser.setInput(fileHandler.reader())
-      val red = XmlReader().parse(fileHandler)
-      val environmentXml = red.getChildByNameRecursive("environment")
+      try {
+        val parser = Xml.newPullParser()
+        val fileHandler = Gdx.files.internal(WorldConstants.LEVELS_FILE_PATH + levelName)
+        parser.setInput(fileHandler.reader())
+        val red = XmlReader().parse(fileHandler)
+        val environmentXml = red.getChildByNameRecursive("environment")
 
-      // Floor parsing
-      val floorsXml = environmentXml.getChildByNameRecursive("floors").getChildrenByName("floor")
-      val floor = Floor(parsePositions(floorsXml))
+        // Floor parsing
+        val floorsXml = environmentXml.getChildByNameRecursive("floors").getChildrenByName("floor")
+        val floor = Floor(parsePositions(floorsXml))
 
-      // Wall parsing
-      val wallsXml = environmentXml.getChildByNameRecursive("walls").getChildrenByName("wall")
-      val walls = Walls(parsePositions(wallsXml))
+        // Wall parsing
+        val wallsXml = environmentXml.getChildByNameRecursive("walls").getChildrenByName("wall")
+        val walls = Walls(parsePositions(wallsXml))
 
-      // Box parsing
-      val boxesXml = environmentXml.getChildByNameRecursive("boxes").getChildrenByName("box")
-      val boxes = ArrayList<Box>()
-      parsePositions(boxesXml).mapTo(boxes) { Box(it) }
+        // Box parsing
+        val boxesXml = environmentXml.getChildByNameRecursive("boxes").getChildrenByName("box")
+        val boxes = ArrayList<Box>()
+        parsePositions(boxesXml).mapTo(boxes) { Box(it) }
 
-      // Target parsing
-      val targetsXml = environmentXml.getChildByNameRecursive("targets").getChildrenByName("target")
-      val targets = ArrayList<Target>()
-      parsePositions(targetsXml).mapTo(targets) { Target(it) }
+        // Target parsing
+        val targetsXml = environmentXml.getChildByNameRecursive("targets").getChildrenByName("target")
+        val targets = ArrayList<Target>()
+        parsePositions(targetsXml).mapTo(targets) { Target(it) }
 
-      // Player parsing
-      val playerXml = environmentXml.getChildByNameRecursive("player")
-      val player = Player(Vector2(playerXml.getFloat("x"), playerXml.getFloat("y")))
+        // Player parsing
+        val playerXml = environmentXml.getChildByNameRecursive("player")
+        val player = Player(Vector2(playerXml.getFloat("x"), playerXml.getFloat("y")))
 
-      return Level(levelName, player, World(), walls, floor, boxes, targets)
+        return Level(levelName, player, World(), walls, floor, boxes, targets)
+      } catch (e: Exception) {
+        // Couldn't parse level.
+        return null
+      }
     }
 
     private fun parsePositions(positionsXml: Array<XmlReader.Element>): List<Vector2> {
