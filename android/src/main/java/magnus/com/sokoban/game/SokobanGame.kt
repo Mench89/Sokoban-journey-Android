@@ -10,11 +10,11 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.utils.Align
 import magnus.com.sokoban.game.level.Level
 import magnus.com.sokoban.game.level.LevelManager
 import java.util.*
 
-// TODO: Select levels
 // TODO: Show steps and other stats
 // TODO: Map editor?
 // TODO: Animations
@@ -22,13 +22,17 @@ import java.util.*
 // TODO: Check if large maps works, if not, camera panning is maybe needed.
 // TODO: Fix missing tiles on some maps.
 // TODO: Fix multiple input clicks.
-class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, MovementHandler.MovementListener {
+// TODO: Change box state when reached target.
+class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, MovementHandler.MovementListener {
+
+  private val TEXT_SCALE_FACTOR = 3F
 
   override fun onPlayerMoved() {
-    targetStateModel.update()
+    gameStateModel.updateAfterPlayerMovement()
     historyHandler.notifyWorldUpdate()
-    Log.d("Sokoban game", "Number of reached targets: " + targetStateModel.numberOfReachedTargets)
-    targetLabel.setText(targetStateModel.numberOfReachedTargets.toString())
+    Log.d("Sokoban game", "Number of reached targets: " + gameStateModel.numberOfReachedTargets)
+    updateTargetText()
+    updateStepsText()
   }
 
   override fun onAllTargetsReached() {
@@ -67,9 +71,7 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
         true
       }
       stage.addActor(exitButton)
-
     }
-
   }
 
   lateinit var batch: SpriteBatch
@@ -77,9 +79,9 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
   lateinit var stage: Stage
   lateinit var winnerLabel: Label
   lateinit var targetLabel: Label
-  lateinit var level: Level
+  lateinit var stepsLabel: Label
   lateinit var movementHandler: MovementHandler
-  lateinit var targetStateModel: TargetStateModel
+  lateinit var gameStateModel: GameStateModel
   lateinit var historyHandler: HistoryHandler
   lateinit var levelManager: LevelManager
 
@@ -94,24 +96,25 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
 
     levelManager = LevelManager()
 
-    targetLabel = Label("0", skin)
-    targetLabel.setFontScale(4F)
-    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width * 4F, Gdx.graphics.height.toFloat() - targetLabel.height * 4F)
+    targetLabel = Label("Targets", skin)
+    targetLabel.setFontScale(TEXT_SCALE_FACTOR)
+    targetLabel.setAlignment(Align.right)
+
+    stepsLabel = Label("Steps", skin)
+    stepsLabel.setFontScale(TEXT_SCALE_FACTOR)
+    stepsLabel.setAlignment(Align.right)
 
     winnerLabel = Label("WINNER WINNER TACO DINNER!", skin)
     winnerLabel.setFontScale(4F)
-    winnerLabel.setPosition(Gdx.graphics.width / 2 - (winnerLabel.width * 1.5F), Gdx.graphics.height / 2 + (winnerLabel.height * 4F / 2))
-
-    initWorld(levelManager.getLevel("2-05.xml")!!)
-    LevelManager().listAllLevelNames()
+    winnerLabel.setPosition(Gdx.graphics.width / 2 - (winnerLabel.width * 2F), Gdx.graphics.height / 2 + (winnerLabel.height * 4F / 2))
 
     resetButton = TextButton("Reset", skin)
     resetButton.isTransform = true
-    resetButton.setScale(3F, 3F)
+    resetButton.setScale(TEXT_SCALE_FACTOR, TEXT_SCALE_FACTOR)
     resetButton.setColor(1F, 0F, 0F, 1F)
-    resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * 3F, 0F)
+    resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * TEXT_SCALE_FACTOR, 0F)
     resetButton.addListener {
-      initWorld(levelManager.currentLevel()!!)
+      initWorld(levelManager.getCurrentLevel()!!)
       initInputHandlers()
       true
     }
@@ -126,16 +129,13 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
       false
     }
 
-    stage.addActor(resetButton)
-    stage.addActor(undoButton)
-    stage.addActor(targetLabel)
-
+    initWorld(levelManager.getLevel("2-07.xml")!!)
     initInputHandlers()
   }
 
   override fun render() {
     batch.begin()
-    level.draw(batch)
+    levelManager.getCurrentLevel()?.draw(batch)
     batch.end()
     stage.draw()
   }
@@ -165,16 +165,14 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     floorPositions.add(Vector2(1F, 3F))
     //level = Level(Player(Vector2(1F, 1F)), World(), Walls(wallPositions), Floor(floorPositions), Collections.singletonList(box), Collections.singletonList(target))
     levelManager.selectLevel(level)
-    this.level = level
-    winnerLabel.remove()
-    targetLabel.setText("0")
-    targetStateModel = TargetStateModel(level.boxes, level.targets, this)
-
+    gameStateModel = GameStateModel(level.boxes, level.targets, this)
     historyHandler = HistoryHandler(level)
+
+    initButtonsAndLabels()
   }
 
   private fun initInputHandlers() {
-    movementHandler = MovementHandler(level, this)
+    movementHandler = MovementHandler(levelManager.getCurrentLevel()!!, this)
     val inputMultiplexer = InputMultiplexer()
     inputMultiplexer.addProcessor(stage)
     inputMultiplexer.addProcessor(movementHandler.gestureDetector)
@@ -186,5 +184,34 @@ class SokobanGame : ApplicationAdapter(), TargetStateModel.GameStateListener, Mo
     inputMultiplexer.removeProcessor(movementHandler.gestureDetector)
     Gdx.input.inputProcessor = inputMultiplexer
 
+  }
+
+  private fun updateTargetText() {
+    targetLabel.setText("Targets\n"
+        +  gameStateModel.numberOfReachedTargets + "/" + gameStateModel.numberOfTotalTargets)
+  }
+
+
+  private fun updateStepsText() {
+    stepsLabel.setText("Steps\n" +
+        gameStateModel.numberOfSteps)
+  }
+
+  private fun initButtonsAndLabels() {
+    resetButton.remove()
+    undoButton.remove()
+    targetLabel.remove()
+    stepsLabel.remove()
+    winnerLabel.remove()
+
+    updateTargetText()
+    updateStepsText()
+    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width, Gdx.graphics.height.toFloat() - targetLabel.height * TEXT_SCALE_FACTOR - 25)
+    stepsLabel.setPosition(Gdx.graphics.width.toFloat() - stepsLabel.width, targetLabel.y - 150)
+
+    stage.addActor(resetButton)
+    stage.addActor(undoButton)
+    stage.addActor(targetLabel)
+    stage.addActor(stepsLabel)
   }
 }

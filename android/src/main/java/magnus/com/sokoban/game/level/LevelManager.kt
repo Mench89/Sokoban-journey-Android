@@ -8,7 +8,11 @@ import magnus.com.sokoban.game.WorldConstants
  */
 class LevelManager {
 
-  private var currentLevelName = ""
+  private var currentLevel: Level?
+
+  init {
+    currentLevel = null
+  }
 
   fun listAllLevelNames(): List<String> {
     val levelNameList = ArrayList<String>()
@@ -24,11 +28,11 @@ class LevelManager {
   }
 
   fun selectLevel(level: Level) {
-    currentLevelName = level.name
+    currentLevel = level
   }
 
-  fun currentLevel(): Level? {
-    return LevelParser.parseLevel(currentLevelName)
+  fun getCurrentLevel(): Level? {
+    return currentLevel
   }
 
   /**
@@ -45,7 +49,7 @@ class LevelManager {
           return LevelParser.parseLevel(levelName)
         }
 
-        if (clipFileName(file.name()) == currentLevelName) {
+        if (clipFileName(file.name()) == currentLevel?.name) {
           foundCurrentLevel = true
         }
       }

@@ -5,10 +5,11 @@ import android.util.Log
 /**
  * Holds the current state of number of target reached.
  */
-class TargetStateModel(val boxes: List<Box>, val targets: List<Target>, val listener: GameStateListener) {
+class GameStateModel(val boxes: List<Box>, val targets: List<Target>, val listener: GameStateListener) {
 
   val numberOfTotalTargets = targets.size
   var numberOfReachedTargets = 0
+  var numberOfSteps = 0
 
   /**
    * Interface to report game state changes.
@@ -29,9 +30,9 @@ class TargetStateModel(val boxes: List<Box>, val targets: List<Target>, val list
   }
 
   /**
-   * Update by checking overlaps of all boxes and targets. After update is complete, check {@link numberOfReachedTargets}.
+   * Update by checking overlaps of all boxes and targets. After updateAfterPlayerMovement is complete, check {@link numberOfReachedTargets}.
    */
-  fun update() {
+  fun updateAfterPlayerMovement() {
     var reachedTargets = 0
     for (box in boxes) {
       targets
@@ -43,5 +44,6 @@ class TargetStateModel(val boxes: List<Box>, val targets: List<Target>, val list
     if (numberOfReachedTargets == numberOfTotalTargets) {
       listener.onAllTargetsReached()
     }
+    numberOfSteps++
   }
 }
