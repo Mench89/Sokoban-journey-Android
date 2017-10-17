@@ -33,17 +33,31 @@ class GameStateModel(val boxes: List<Box>, val targets: List<Target>, val listen
    * Update by checking overlaps of all boxes and targets. After updateAfterPlayerMovement is complete, check {@link numberOfReachedTargets}.
    */
   fun updateAfterPlayerMovement() {
+    updatekNumberOfBoxTargetCollisions()
+    numberOfSteps++
+  }
+
+  fun updateAfterUndo() {
+    updatekNumberOfBoxTargetCollisions()
+  }
+
+  private fun updatekNumberOfBoxTargetCollisions() {
     var reachedTargets = 0
     for (box in boxes) {
-      targets
-          .filter { CollisionHelper.isColliding(box.shape, it.shape) }
-          .forEach { reachedTargets++ }
+      for (target in targets) {
+        if(CollisionHelper.isColliding(box.shape, target.shape)) {
+          box.setIsOnTarget(true)
+          reachedTargets++
+          break
+        } else {
+          box.setIsOnTarget(false)
+        }
+      }
     }
     numberOfReachedTargets = reachedTargets
 
     if (numberOfReachedTargets == numberOfTotalTargets) {
       listener.onAllTargetsReached()
     }
-    numberOfSteps++
   }
 }

@@ -114,6 +114,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     resetButton.setColor(1F, 0F, 0F, 1F)
     resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * TEXT_SCALE_FACTOR, 0F)
     resetButton.addListener {
+      levelManager.resetCurrentLevel()
       initWorld(levelManager.getCurrentLevel()!!)
       initInputHandlers()
       true
@@ -126,6 +127,9 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     undoButton.addListener {
       // TODO: Only handle one event!
       historyHandler.timeTravel()
+      gameStateModel.updateAfterUndo()
+      updateTargetText()
+      updateStepsText()
       false
     }
 

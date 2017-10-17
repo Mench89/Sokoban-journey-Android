@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 
-open class Actor(val sprite: Texture) : Drawable {
+open class Actor(var sprite: Texture) : Drawable {
   val shape = Rectangle(0F, 0F, sprite.width.toFloat(), sprite.height.toFloat())
 
   fun setPosition(x: Float, y: Float) {

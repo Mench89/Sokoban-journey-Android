@@ -59,6 +59,13 @@ class LevelManager {
     return null
   }
 
+  fun resetCurrentLevel() {
+    if (currentLevel == null) {
+      return
+    }
+    selectLevel(getLevel(getCurrentLevel()?.name!!)!!)
+  }
+
   private fun clipFileName(filename: String): String {
     return filename.substringAfter(WorldConstants.LEVELS_FILE_PATH)
   }
