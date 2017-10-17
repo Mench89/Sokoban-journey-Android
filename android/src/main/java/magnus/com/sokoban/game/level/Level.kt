@@ -4,8 +4,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import magnus.com.sokoban.game.*
 import magnus.com.sokoban.game.Target
 
-class Level(val name: String, val player: Player, val world: World, val walls: Walls, val floor: Floor, val boxes: List<Box>, val targets: List<Target>)
+class Level(val fileName: String, val player: Player, val world: World, val walls: Walls, val floor: Floor, val boxes: List<Box>, val targets: List<Target>)
   : Drawable {
+
+  val name = fileName.substringBefore(".xml")
 
   override fun draw(batch: SpriteBatch) {
     world.draw(batch)

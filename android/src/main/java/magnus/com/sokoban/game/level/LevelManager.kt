@@ -49,7 +49,7 @@ class LevelManager {
           return LevelParser.parseLevel(levelName)
         }
 
-        if (clipFileName(file.name()) == currentLevel?.name) {
+        if (clipFileName(file.name()) == currentLevel?.fileName) {
           foundCurrentLevel = true
         }
       }
@@ -63,7 +63,7 @@ class LevelManager {
     if (currentLevel == null) {
       return
     }
-    selectLevel(getLevel(getCurrentLevel()?.name!!)!!)
+    selectLevel(getLevel(getCurrentLevel()?.fileName!!)!!)
   }
 
   private fun clipFileName(filename: String): String {

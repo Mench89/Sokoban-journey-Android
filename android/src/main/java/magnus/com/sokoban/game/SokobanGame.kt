@@ -15,14 +15,12 @@ import magnus.com.sokoban.game.level.Level
 import magnus.com.sokoban.game.level.LevelManager
 import java.util.*
 
-// TODO: Show steps and other stats
 // TODO: Map editor?
 // TODO: Animations
 // TODO: Add credits
 // TODO: Check if large maps works, if not, camera panning is maybe needed.
 // TODO: Fix missing tiles on some maps.
 // TODO: Fix multiple input clicks.
-// TODO: Change box state when reached target.
 class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, MovementHandler.MovementListener {
 
   private val TEXT_SCALE_FACTOR = 3F
@@ -80,6 +78,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
   lateinit var winnerLabel: Label
   lateinit var targetLabel: Label
   lateinit var stepsLabel: Label
+  lateinit var levelLabel: Label
   lateinit var movementHandler: MovementHandler
   lateinit var gameStateModel: GameStateModel
   lateinit var historyHandler: HistoryHandler
@@ -96,11 +95,16 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
 
     levelManager = LevelManager()
 
-    targetLabel = Label("Targets", skin)
+
+    levelLabel = Label("Level", skin)
+    levelLabel.setFontScale(TEXT_SCALE_FACTOR)
+    levelLabel.setAlignment(Align.right)
+
+    targetLabel = Label("Boxes", skin)
     targetLabel.setFontScale(TEXT_SCALE_FACTOR)
     targetLabel.setAlignment(Align.right)
 
-    stepsLabel = Label("Steps", skin)
+    stepsLabel = Label("Moves", skin)
     stepsLabel.setFontScale(TEXT_SCALE_FACTOR)
     stepsLabel.setAlignment(Align.right)
 
@@ -191,30 +195,39 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
   }
 
   private fun updateTargetText() {
-    targetLabel.setText("Targets\n"
+    targetLabel.setText("Boxes\n"
         +  gameStateModel.numberOfReachedTargets + "/" + gameStateModel.numberOfTotalTargets)
   }
 
 
   private fun updateStepsText() {
-    stepsLabel.setText("Steps\n" +
+    stepsLabel.setText("Moves\n" +
         gameStateModel.numberOfSteps)
+  }
+
+  private fun updateLevelText() {
+    levelLabel.setText("Level\n" +
+        levelManager.getCurrentLevel()?.name)
   }
 
   private fun initButtonsAndLabels() {
     resetButton.remove()
     undoButton.remove()
+    levelLabel.remove()
     targetLabel.remove()
     stepsLabel.remove()
     winnerLabel.remove()
 
+    updateLevelText()
     updateTargetText()
     updateStepsText()
-    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width, Gdx.graphics.height.toFloat() - targetLabel.height * TEXT_SCALE_FACTOR - 25)
+    levelLabel.setPosition(Gdx.graphics.width.toFloat() - levelLabel.width, Gdx.graphics.height.toFloat() - levelLabel.height * TEXT_SCALE_FACTOR - 25)
+    targetLabel.setPosition(Gdx.graphics.width.toFloat() - targetLabel.width, levelLabel.y - 150)
     stepsLabel.setPosition(Gdx.graphics.width.toFloat() - stepsLabel.width, targetLabel.y - 150)
 
     stage.addActor(resetButton)
     stage.addActor(undoButton)
+    stage.addActor(levelLabel)
     stage.addActor(targetLabel)
     stage.addActor(stepsLabel)
   }
