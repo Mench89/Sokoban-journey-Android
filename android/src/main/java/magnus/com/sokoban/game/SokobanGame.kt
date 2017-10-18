@@ -6,10 +6,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Align
 import magnus.com.sokoban.game.level.Level
 import magnus.com.sokoban.game.level.LevelManager
@@ -21,13 +23,17 @@ import java.util.*
 // TODO: Check if large maps works, if not, camera panning is maybe needed.
 // TODO: Fix missing tiles on some maps.
 // TODO: Fix multiple input clicks.
+// TODO: Sound effects.
 class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, MovementHandler.MovementListener {
 
   private val TEXT_SCALE_FACTOR = 3F
 
-  override fun onPlayerMoved() {
+  override fun onBeforePlayerMoved() {
+    historyHandler.saveCurrentTime()
+  }
+
+  override fun onAfterPlayerMoved() {
     gameStateModel.updateAfterPlayerMovement()
-    historyHandler.notifyWorldUpdate()
     Log.d("Sokoban game", "Number of reached targets: " + gameStateModel.numberOfReachedTargets)
     updateTargetText()
     updateStepsText()
@@ -128,14 +134,19 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     undoButton.setScale(3F, 3F)
     undoButton.setColor(0F, 1F, 0F, 1F)
     undoButton.setPosition(Gdx.graphics.width.toFloat() - undoButton.width * 3F, resetButton.height * 4)
-    undoButton.addListener {
-      // TODO: Only handle one event!
-      historyHandler.timeTravel()
-      gameStateModel.updateAfterUndo()
-      updateTargetText()
-      updateStepsText()
-      false
-    }
+    undoButton.addListener(object : ClickListener() {
+
+      override fun clicked(event: InputEvent?, x: Float, y: Float) {
+        if (event?.type == InputEvent.Type.touchUp) {
+          historyHandler.timeTravel()
+          gameStateModel.updateAfterUndo()
+          updateTargetText()
+          updateStepsText()
+          Log.d("Sokoban game", "Pressing undo!")
+        }
+        super.clicked(event, x, y)
+      }
+    })
 
     initWorld(levelManager.getLevel("2-07.xml")!!)
     initInputHandlers()
@@ -196,7 +207,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
 
   private fun updateTargetText() {
     targetLabel.setText("Boxes\n"
-        +  gameStateModel.numberOfReachedTargets + "/" + gameStateModel.numberOfTotalTargets)
+        + gameStateModel.numberOfReachedTargets + "/" + gameStateModel.numberOfTotalTargets)
   }
 
 

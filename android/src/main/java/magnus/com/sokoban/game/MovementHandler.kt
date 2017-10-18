@@ -12,7 +12,7 @@ import magnus.com.sokoban.game.level.Level
 class MovementHandler(val level: Level, val listener: MovementListener) : InputHandler.UserInteractionListener {
 
   var isPlayerPanning = false
-  var previousPannedPosition : Rectangle?
+  var previousPannedPosition: Rectangle?
 
   override fun onUserPanStopped(pannedPoint: Vector3) {
     isPlayerPanning = false
@@ -20,7 +20,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
   }
 
   override fun onUserTouchedDown(tappedPoint: Vector3) {
-    if(userClickedOnPlayer(tappedPoint)) {
+    if (userClickedOnPlayer(tappedPoint)) {
       isPlayerPanning = true
     }
   }
@@ -28,7 +28,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
   override fun onUserPan(pannedPoint: Vector3) {
     // Only pan the player if user moved a small distance away from player.
     var panningThreshold = WorldConstants.CELL_SIZE * 0.70
-    if(previousPannedPosition?.contains(Vector2(pannedPoint.x, pannedPoint.y)) == true) {
+    if (previousPannedPosition?.contains(Vector2(pannedPoint.x, pannedPoint.y)) == true) {
       Log.d("Sokoban Game", "Trying to go back go previous square, increase panning threshold")
       panningThreshold = WorldConstants.CELL_SIZE * 0.90
     }
@@ -40,7 +40,8 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
   val gestureDetector: GestureDetector?
 
   interface MovementListener {
-    fun onPlayerMoved()
+    fun onBeforePlayerMoved()
+    fun onAfterPlayerMoved()
   }
 
   init {
@@ -51,7 +52,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
   }
 
   override fun onUserTapped(tappedPoint: Vector3) {
-    if(userClickedOnPlayer(tappedPoint)) {
+    if (userClickedOnPlayer(tappedPoint)) {
       return
     }
 
@@ -79,37 +80,44 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
     }
 
     val soonPreviousPanningPosition = Rectangle(level.player.shape)
-    level.player.setPosition(level.player.getX() + newPosXDiff, level.player.getY() + newPosyDiff)
-    if (CollisionHelper.isCollidingWithAny(level.player.shape, level.walls.wallShapes)) {
+    val movedPlayerShape = Rectangle(level.player.shape)
+    movedPlayerShape.setPosition(level.player.getX() + newPosXDiff, level.player.getY() + newPosyDiff)
+    if (CollisionHelper.isCollidingWithAny(movedPlayerShape, level.walls.wallShapes)) {
       Log.d("Sokoban game", "Player went into a wall!")
-      // Player went into a wall! Revert player position.
-      level.player.setPosition(level.player.getX() - newPosXDiff, level.player.getY() - newPosyDiff)
+      // Player went into a wall! Don't move player
     } else {
-      if(!checkForBoxCollision(newPosXDiff, newPosyDiff)) {
+      if (!checkForBoxCollision(movedPlayerShape, newPosXDiff, newPosyDiff)) {
         if (isPlayerPanning) {
           previousPannedPosition = soonPreviousPanningPosition
         }
-        listener.onPlayerMoved()
+        level.player.setPosition(movedPlayerShape.getPosition(Vector2()))
+        listener.onAfterPlayerMoved()
       }
     }
   }
 
-  private fun checkForBoxCollision(newPosXDiff: Float, newPosYDiff: Float) : Boolean {
-    // TODO: Handle new player pos if code above is changed.
+  /**
+   * Check if player moved any box and if the box itself didn't collied with anything.
+   * @return true if box collided and couldn't be moved.
+   */
+  private fun checkForBoxCollision(newPlayerShape: Rectangle, newPosXDiff: Float, newPosYDiff: Float): Boolean {
     for (box in level.boxes) {
-      if (CollisionHelper.isColliding(level.player.shape, box.shape)) {
-        box.setPosition(box.getX() + newPosXDiff, box.getY() + newPosYDiff)
-
+      if (CollisionHelper.isColliding(newPlayerShape, box.shape)) {
+        val movedBox = Box(Vector2())
+        movedBox.setPosition(box.getX() + newPosXDiff, box.getY() + newPosYDiff)
         val boxShapes = ArrayList<Rectangle>()
         level.boxes.mapTo(boxShapes) { it.shape }
-        if (CollisionHelper.isCollidingWithAny(box.shape, level.walls.wallShapes) || CollisionHelper.numberOfCollisions(box.shape, boxShapes) > 1) {
-          // Revert player and box positions.
-          level.player.setPosition(level.player.getX() - newPosXDiff, level.player.getY() - newPosYDiff)
-          box.setPosition(box.getX() - newPosXDiff, box.getY() - newPosYDiff)
+        if (CollisionHelper.isCollidingWithAny(movedBox.shape, level.walls.wallShapes) || CollisionHelper.numberOfCollisions(movedBox.shape, boxShapes) > 1) {
+          // Box collided with wall, don't move box.
           return true
+        } else {
+          listener.onBeforePlayerMoved()
+          box.setPosition(movedBox.getPosition())
+          return false
         }
       }
     }
+    listener.onBeforePlayerMoved()
     return false
   }
 
