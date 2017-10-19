@@ -24,7 +24,6 @@ import java.util.*
 // TODO: Add credits
 // TODO: Check if large maps works, if not, camera panning is maybe needed.
 // TODO: Fix missing tiles on some maps.
-// TODO: Sound effects.
 class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, MovementHandler.MovementListener {
 
   private val TEXT_SCALE_FACTOR = 3F
@@ -41,6 +40,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
   }
 
   override fun onAllTargetsReached() {
+    winningSound.play()
     undoButton.remove()
     resetButton.remove()
     stage.addActor(winnerLabel)
@@ -103,6 +103,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
   // Sounds
   lateinit var backgroundMusic: Music
   lateinit var undoSound: Sound
+  lateinit var winningSound: Sound
 
   override fun create() {
     batch = SpriteBatch()
@@ -114,6 +115,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     backgroundMusic.volume = 0.2f
     backgroundMusic.isLooping = true
     undoSound = Gdx.audio.newSound(Gdx.files.internal("sounds/doh.wav"))
+    winningSound = Gdx.audio.newSound(Gdx.files.internal("sounds/winning.wav"))
 
     levelLabel = Label("Level", skin)
     levelLabel.setFontScale(TEXT_SCALE_FACTOR)
@@ -185,6 +187,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     stage.dispose()
     backgroundMusic.dispose()
     undoSound.dispose()
+    winningSound.dispose()
   }
 
   private fun initWorld(level: Level) {
