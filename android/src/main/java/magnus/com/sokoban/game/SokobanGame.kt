@@ -4,6 +4,8 @@ import android.util.Log
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.audio.Music
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -22,7 +24,6 @@ import java.util.*
 // TODO: Add credits
 // TODO: Check if large maps works, if not, camera panning is maybe needed.
 // TODO: Fix missing tiles on some maps.
-// TODO: Fix multiple input clicks.
 // TODO: Sound effects.
 class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, MovementHandler.MovementListener {
 
@@ -54,12 +55,17 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
       nextLevelButton.setScale(3F, 3F)
       nextLevelButton.setColor(1F, 0F, 0F, 1F)
       nextLevelButton.setPosition(Gdx.graphics.width / 2 - (nextLevelButton.width * 3F / 2), winnerLabel.y - 150)
-      nextLevelButton.addListener {
-        initWorld(nextLevel)
-        initInputHandlers()
-        nextLevelButton.remove()
-        true
-      }
+      nextLevelButton.addListener(object : ClickListener() {
+        override fun clicked(event: InputEvent?, x: Float, y: Float) {
+          if (event?.type == InputEvent.Type.touchUp) {
+            initWorld(nextLevel)
+            initInputHandlers()
+            nextLevelButton.remove()
+            super.clicked(event, x, y)
+          }
+        }
+      })
+
       stage.addActor(nextLevelButton)
     } else {
       // Last level was completed!
@@ -94,13 +100,20 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
   lateinit var resetButton: TextButton
   lateinit var undoButton: TextButton
 
+  // Sounds
+  lateinit var backgroundMusic: Music
+  lateinit var undoSound: Sound
+
   override fun create() {
     batch = SpriteBatch()
     stage = Stage()
     skin = Skin(Gdx.files.internal("skin/uiskin.json"))
 
-    levelManager = LevelManager()
-
+    backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/theme.mp3"))
+    backgroundMusic.play()
+    backgroundMusic.volume = 0.2f
+    backgroundMusic.isLooping = true
+    undoSound = Gdx.audio.newSound(Gdx.files.internal("sounds/doh.wav"))
 
     levelLabel = Label("Level", skin)
     levelLabel.setFontScale(TEXT_SCALE_FACTOR)
@@ -123,12 +136,18 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     resetButton.setScale(TEXT_SCALE_FACTOR, TEXT_SCALE_FACTOR)
     resetButton.setColor(1F, 0F, 0F, 1F)
     resetButton.setPosition(Gdx.graphics.width.toFloat() - resetButton.width * TEXT_SCALE_FACTOR, 0F)
-    resetButton.addListener {
-      levelManager.resetCurrentLevel()
-      initWorld(levelManager.getCurrentLevel()!!)
-      initInputHandlers()
-      true
-    }
+    resetButton.addListener(object : ClickListener() {
+      override fun clicked(event: InputEvent?, x: Float, y: Float) {
+        if (event?.type == InputEvent.Type.touchUp) {
+          Log.d("Sokoban game", "Pressing reset!")
+          levelManager.resetCurrentLevel()
+          initWorld(levelManager.getCurrentLevel()!!)
+          initInputHandlers()
+        }
+        super.clicked(event, x, y)
+      }
+    })
+
     undoButton = TextButton("Undo", skin)
     undoButton.isTransform = true
     undoButton.setScale(3F, 3F)
@@ -138,17 +157,19 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
 
       override fun clicked(event: InputEvent?, x: Float, y: Float) {
         if (event?.type == InputEvent.Type.touchUp) {
+          Log.d("Sokoban game", "Pressing undo!")
+          undoSound.play()
           historyHandler.timeTravel()
           gameStateModel.updateAfterUndo()
           updateTargetText()
           updateStepsText()
-          Log.d("Sokoban game", "Pressing undo!")
         }
         super.clicked(event, x, y)
       }
     })
 
-    initWorld(levelManager.getLevel("2-07.xml")!!)
+    levelManager = LevelManager()
+    initWorld(levelManager.getLevel("1-01.xml")!!)
     initInputHandlers()
   }
 
@@ -161,6 +182,9 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
 
   override fun dispose() {
     batch.dispose()
+    stage.dispose()
+    backgroundMusic.dispose()
+    undoSound.dispose()
   }
 
   private fun initWorld(level: Level) {
@@ -183,6 +207,7 @@ class SokobanGame : ApplicationAdapter(), GameStateModel.GameStateListener, Move
     floorPositions.add(Vector2(1F, 2F))
     floorPositions.add(Vector2(1F, 3F))
     //level = Level(Player(Vector2(1F, 1F)), World(), Walls(wallPositions), Floor(floorPositions), Collections.singletonList(box), Collections.singletonList(target))
+
     levelManager.selectLevel(level)
     gameStateModel = GameStateModel(level.boxes, level.targets, this)
     historyHandler = HistoryHandler(level)

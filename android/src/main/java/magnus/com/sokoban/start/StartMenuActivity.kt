@@ -20,7 +20,6 @@ class StartMenuActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_menu)
 
-    // TODO: Move to Application when created.
     Box2D.init()
 
     val menuList = findViewById<ListView>(R.id.menu_list)
