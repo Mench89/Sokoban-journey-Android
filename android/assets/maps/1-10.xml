@@ -69,6 +69,12 @@
 			<floor x="15" y="6" sprite="1" />
 			<floor x="15" y="7" sprite="1" />
 			<floor x="15" y="8" sprite="1" />
+			<floor x="2" y="7" sprite="1" />
+			<floor x="5" y="2" sprite="1" />
+			<floor x="5" y="4" sprite="1" />
+			<floor x="5" y="7" sprite="1" />
+			<floor x="7" y="3" sprite="1" />
+			<floor x="7" y="4" sprite="1" />
 		</floors>
 		<walls>
 			<wall x="4" y="0" sprite="1" />

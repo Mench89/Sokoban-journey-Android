@@ -23,6 +23,8 @@
 	<environment>
 		<floors>
 			<floor x="1" y="2" />
+			<floor x="1" y="3" />
+			<floor x="1" y="4" />
 		</floors>
 		<walls>
 			<wall x="0" y="0" sprite="1" />
