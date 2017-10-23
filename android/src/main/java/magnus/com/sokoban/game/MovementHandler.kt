@@ -107,7 +107,7 @@ class MovementHandler(val level: Level, val listener: MovementListener) : InputH
         movedBox.setPosition(box.getX() + newPosXDiff, box.getY() + newPosYDiff)
         val boxShapes = ArrayList<Rectangle>()
         level.boxes.mapTo(boxShapes) { it.shape }
-        if (CollisionHelper.isCollidingWithAny(movedBox.shape, level.walls.wallShapes) || CollisionHelper.numberOfCollisions(movedBox.shape, boxShapes) > 1) {
+        if (CollisionHelper.isCollidingWithAny(movedBox.shape, level.walls.wallShapes) || CollisionHelper.numberOfCollisions(movedBox.shape, boxShapes) > 0) {
           // Box collided with wall, don't move box.
           return true
         } else {
